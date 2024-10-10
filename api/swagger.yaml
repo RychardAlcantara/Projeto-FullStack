@@ -1,0 +1,159 @@
+openapi: 3.0.0
+info:
+  title: API do Meu Projeto
+  version: 1.0.0
+  description: Documentação das APIs do meu projeto
+  contact:
+    name: Rychard
+    email: rychardgabriell32@gmail.com
+servers:
+  - url: http://localhost:9000
+    description: Servidor local
+
+paths:
+  /testAPI:
+    get:
+      summary: Retorna uma mensagem de teste da API
+      description: Rota para testar se a API está funcionando
+      responses:
+        200:
+          description: Uma mensagem de sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: API funcionando corretamente!
+
+  /testUser:
+    get:
+      summary: Retorna a lista de usuários
+      description: Faz uma consulta no banco de dados e retorna todos os usuários da tabela
+      responses:
+        200:
+          description: Lista de usuários
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    nome:
+                      type: string
+                      example: João Silva
+                    email:
+                      type: string
+                      example: joao.silva@email.com
+        500:
+          description: Erro ao consultar o banco de dados
+
+    post:
+      summary: Cria um novo usuário
+      description: Adiciona um novo usuário à tabela de usuários
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  example: Maria Silva
+                email:
+                  type: string
+                  example: maria.silva@email.com
+                senha:
+                  type: string
+                  example: senha123
+      responses:
+        201:
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Usuário criado com sucesso
+                  id:
+                    type: integer
+                    example: 1
+        500:
+          description: Erro ao criar o usuário
+
+  /testUser/{id}:
+    put:
+      summary: Atualiza um usuário existente
+      description: Atualiza os dados de um usuário na tabela de usuários
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID do usuário a ser atualizado
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  example: Maria Silva
+                email:
+                  type: string
+                  example: maria.silva@email.com
+                senha:
+                  type: string
+                  example: senha123
+      responses:
+        200:
+          description: Usuário atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Usuário atualizado com sucesso
+        404:
+          description: Usuário não encontrado
+        500:
+          description: Erro ao atualizar o usuário
+
+    delete:
+      summary: Deleta um usuário existente
+      description: Remove um usuário da tabela de usuários
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID do usuário a ser deletado
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Usuário deletado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Usuário deletado com sucesso
+        404:
+          description: Usuário não encontrado
+        500:
+          description: Erro ao deletar o usuário
