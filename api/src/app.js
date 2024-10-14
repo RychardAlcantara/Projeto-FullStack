@@ -5,9 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require("cors");
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-const testAPIRouter = require('./routes/testAPI');
-const testDBRouter = require('./routes/testDB');
+const user = require('./routes/user');
+const loginRouter = require('./routes/loginRouter')
 
 // Swagger
 const swaggerUi = require('swagger-ui-express');
@@ -25,7 +24,7 @@ app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));  // Defi
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000'}));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -34,9 +33,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //rotas
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/testAPI', testAPIRouter);
-app.use('/testUser', testDBRouter); // Mantenha apenas esta linha
+app.use('/userCreate', user); // Mantenha apenas esta linha
+app.use('/auth', loginRouter); // Adicione esta linha para a autenticação
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

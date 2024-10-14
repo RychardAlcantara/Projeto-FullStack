@@ -1,8 +1,8 @@
 const express = require('express');
-const pool = require('../database');  // Importe a conexão do banco de dados
-var testDBRouter = express.Router();
+const pool = require('../../database');  // Importe a conexão do banco de dados
+var user = express.Router();
 
-testDBRouter.get('/', async (req, res) => {
+user.get('/', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM usuarios');  // Exemplo de consulta
     res.json(result.rows);
@@ -12,7 +12,7 @@ testDBRouter.get('/', async (req, res) => {
   }
 });
 
-testDBRouter.get('/:id', async (req, res) => {
+user.get('/:id', async (req, res) => {
     const { id } = req.params; // Obtém o ID da requisição
     try {
       // Consulta SQL correta
@@ -29,7 +29,7 @@ testDBRouter.get('/:id', async (req, res) => {
     }
   });
 
-  testDBRouter.post('/', async (req, res) => {
+  user.post('/', async (req, res) => {
     const { nome, email, senha } = req.body;
     try {
       const result = await pool.query(
@@ -44,7 +44,7 @@ testDBRouter.get('/:id', async (req, res) => {
   });
 
 // Rota para atualizar um usuário existente
-testDBRouter.put('/:id', async (req, res) => {
+user.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { nome, email, senha } = req.body;
 
@@ -88,7 +88,7 @@ testDBRouter.put('/:id', async (req, res) => {
 });
 
 
-testDBRouter.delete('/:id', async (req, res) => {
+user.delete('/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query('DELETE FROM usuarios WHERE id = $1', [id]);
@@ -102,4 +102,4 @@ testDBRouter.delete('/:id', async (req, res) => {
   }
 });
 
-module.exports = testDBRouter;
+module.exports = user;

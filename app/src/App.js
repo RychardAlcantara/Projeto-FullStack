@@ -1,61 +1,112 @@
-import logo from './logo.svg';
-import './App.css';
-import { Component } from 'react';
+// src/App.js
+import React, { Component } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
+import UserProfile from './components/UserProfile';
+import UserForm from './components/UserForm';
+import UserList from './components/UserList';
+import { Box, Container } from '@mui/material';
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      apiResponse1: "",  // Resposta da API /testAPI
-      apiResponse2: []   // Resposta da API /testDB (usuários do banco de dados)
+    this.state = {
+      users: [],
+      newUser: { nome: '', email: '', senha: '' },
+      isLoggedIn: !!localStorage.getItem('token'), // Verifica se já está logado
     };
   }
 
-  // Método para chamar as APIs /testAPI e /testDB
-  callAPIs() {
-    // Fazendo ambas as requisições ao mesmo tempo
-    Promise.all([
-      fetch("http://localhost:9000/testAPI"),  // Requisição para /testAPI
-      fetch("http://localhost:9000/testUser")    // Requisição para /testDB
-    ])
-    .then(async ([res1, res2]) => {
-      const apiResponse1 = await res1.json();  // Converte a resposta da primeira API (testAPI) para JSON
-      const apiResponse2 = await res2.json();  // Converte a resposta da segunda API (testDB) para JSON
-      this.setState({ 
-        apiResponse1: apiResponse1.message,   // Armazena a mensagem da primeira API
-        apiResponse2: apiResponse2            // Armazena os usuários retornados da segunda API
+   // Método para buscar usuários da API
+   fetchUsers = async () => {
+    try {
+      const res = await fetch("http://localhost:9000/userCreate");
+      const data = await res.json();
+      this.setState({ users: data });
+    } catch (err) {
+      console.error("Erro ao buscar usuários:", err);
+    }
+  };
+
+  // Adiciona um novo usuário
+  addUser = async (user) => {
+    try {
+      const res = await fetch("http://localhost:9000/userCreate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user)
       });
-    })
-    .catch(err => console.error("Erro ao buscar dados das APIs:", err));
-  }
+      if (res.ok) {
+        this.fetchUsers();
+      }
+    } catch (err) {
+      console.error("Erro ao adicionar usuário:", err);
+    }
+  };
 
-  // Chama as APIs quando o componente é montado
-  componentDidMount() {
-    this.callAPIs();
-  }
+  // Atualiza um usuário
+  updateUser = async (user) => {
+    try {
+      const res = await fetch(`http://localhost:9000/userCreate/${user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user)
+      });
+      if (res.ok) {
+        this.fetchUsers();  // Atualiza a lista de usuários após a edição
+      }
+    } catch (err) {
+      console.error("Erro ao atualizar usuário:", err);
+    }
+  };
 
-  // Renderiza os resultados das duas APIs
+  // Deleta um usuário
+  deleteUser = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:9000/userCreate/${id}`, {
+        method: "DELETE"
+      });
+      if (res.ok) {
+        this.fetchUsers();
+      }
+    } catch (err) {
+      console.error("Erro ao deletar usuário:", err);
+    }
+  };
+
+  // Método para efetuar login
+  handleLogin = () => {
+    localStorage.setItem('token', 'user-token'); // Armazena um token de login
+    this.setState({ isLoggedIn: true });
+  };
+
+  // Método para efetuar logout
+  handleLogout = () => {
+    localStorage.removeItem('token'); // Remove o token do localStorage
+    this.setState({ isLoggedIn: false });
+  };
+
   render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Requisições para APIs</h1>
-          
-          {/* Exibe a resposta da primeira API (/testAPI) */}
-          <p>{this.state.apiResponse1}</p>
+    const { isLoggedIn, users } = this.state; 
 
-          {/* Exibe a lista de usuários retornada pela segunda API (/testDB) */}
-          <h2>Usuários:</h2>
-          <ul>
-            {this.state.apiResponse2.map(usuario => (
-              <li key={usuario.id}>
-                Nome: {usuario.nome} - Email: {usuario.email}
-              </li>
-            ))}
-          </ul>
-        </header>
-      </div>
+    return (
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login onLogin={this.handleLogin} />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/userCreate" element={this.state.isLoggedIn ? <UserProfile onLogout={this.handleLogout} /> : <Navigate to="/login" />} />
+        </Routes>
+        {isLoggedIn && ( // Condicional para mostrar o formulário e lista de usuários apenas se estiver logado
+          <Container maxWidth="md">
+            <Box mt={4}>
+              <UserForm addUser={this.addUser} />
+              <UserList users={users} deleteUser={this.deleteUser} />
+            </Box>
+          </Container>
+        )}
+        
+      </Router>
     );
   }
 }
