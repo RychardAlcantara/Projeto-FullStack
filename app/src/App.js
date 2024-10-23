@@ -6,7 +6,7 @@ import Register from './components/Auth/Register';
 import UserProfile from './components/UserProfile';
 import UserForm from './components/UserForm';
 import UserList from './components/UserList';
-import { Box, Container } from '@mui/material';
+import { Box, Button, Container } from '@mui/material';
 
 class App extends Component {
   constructor(props) {
@@ -15,13 +15,14 @@ class App extends Component {
       users: [],
       newUser: { nome: '', email: '', senha: '' },
       isLoggedIn: !!localStorage.getItem('token'), // Verifica se já está logado
+      showUsers: false,
     };
   }
 
    // Método para buscar usuários da API
    fetchUsers = async () => {
     try {
-      const res = await fetch("http://localhost:9000/userCreate");
+      const res = await fetch("http://localhost:9000/user");
       const data = await res.json();
       this.setState({ users: data });
     } catch (err) {
@@ -32,7 +33,7 @@ class App extends Component {
   // Adiciona um novo usuário
   addUser = async (user) => {
     try {
-      const res = await fetch("http://localhost:9000/userCreate", {
+      const res = await fetch("http://localhost:9000/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user)
@@ -48,7 +49,7 @@ class App extends Component {
   // Atualiza um usuário
   updateUser = async (user) => {
     try {
-      const res = await fetch(`http://localhost:9000/userCreate/${user.id}`, {
+      const res = await fetch(`http://localhost:9000/user/${user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user)
@@ -64,7 +65,7 @@ class App extends Component {
   // Deleta um usuário
   deleteUser = async (id) => {
     try {
-      const res = await fetch(`http://localhost:9000/userCreate/${id}`, {
+      const res = await fetch(`http://localhost:9000/user/${id}`, {
         method: "DELETE"
       });
       if (res.ok) {
@@ -87,25 +88,45 @@ class App extends Component {
     this.setState({ isLoggedIn: false });
   };
 
+    // Alterna a exibição da lista de usuários
+    toggleUserList = () => {
+      this.setState((prevState) => ({ showUsers: !prevState.showUsers }));
+    };
+
   render() {
-    const { isLoggedIn, users } = this.state; 
+    const { isLoggedIn, users, showUsers } = this.state; 
 
     return (
       <Router>
         <Routes>
           <Route path="/login" element={<Login onLogin={this.handleLogin} />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/userCreate" element={this.state.isLoggedIn ? <UserProfile onLogout={this.handleLogout} /> : <Navigate to="/login" />} />
+          <Route 
+            path="/user" 
+            element={isLoggedIn ? <UserProfile onLogout={this.handleLogout} /> : <Navigate to="/login" />} 
+          />
         </Routes>
+        
         {isLoggedIn && ( // Condicional para mostrar o formulário e lista de usuários apenas se estiver logado
           <Container maxWidth="md">
             <Box mt={4}>
               <UserForm addUser={this.addUser} />
-              <UserList users={users} deleteUser={this.deleteUser} />
+
+              {/* Botão para alternar entre exibir ou ocultar a lista de usuários */}
+              <Button 
+                variant="contained" 
+                color="secondary" 
+                onClick={this.toggleUserList} 
+                fullWidth
+              >
+                {showUsers ? 'Ocultar Usuários Cadastrados' : 'Exibir Usuários Cadastrados'}
+              </Button>
+
+              {/* Lista de usuários é exibida apenas se showUsers for true */}
+              {showUsers && <UserList users={users} deleteUser={this.deleteUser} />}
             </Box>
           </Container>
         )}
-        
       </Router>
     );
   }

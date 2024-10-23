@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //rotas
 app.use('/', indexRouter);
-app.use('/userCreate', user); // Mantenha apenas esta linha
+app.use('/user', user);
 app.use('/auth', loginRouter); // Adicione esta linha para a autenticação
 
 // catch 404 and forward to error handler

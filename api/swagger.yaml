@@ -27,7 +27,7 @@ paths:
                     type: string
                     example: API funcionando corretamente!
 
-  /userCreate:
+  /user:
     get:
       summary: Retorna a lista de usuários
       description: Faz uma consulta no banco de dados e retorna todos os usuários da tabela
@@ -89,7 +89,7 @@ paths:
         500:
           description: Erro ao criar o usuário
 
-  /userCreate/{id}:
+  /user/{id}:
     put:
       summary: Atualiza um usuário existente
       description: Atualiza os dados de um usuário na tabela de usuários

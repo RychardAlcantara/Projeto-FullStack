@@ -11,7 +11,7 @@ const Login = ({ onLogin }) => {
     // Verifica se já está logado
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/userCreate'); // Redireciona se já estiver logado
+      navigate('/user'); // Redireciona se já estiver logado
     }
   }, [navigate]);
 
@@ -31,7 +31,7 @@ const Login = ({ onLogin }) => {
       const data = await res.json();
       localStorage.setItem('token', data.token); // Armazena o token no localStorage
       onLogin(); // Chama a função onLogin
-      navigate('/userCreate'); // Redireciona após o login bem-sucedido
+      navigate('/user'); // Redireciona após o login bem-sucedido
     } catch (error) {
       console.error('Erro no login:', error); // Log do erro
       alert('Login falhou. Tente novamente.'); // Mensagem de erro
